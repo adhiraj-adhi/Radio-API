@@ -1,5 +1,9 @@
 package com.example.tcs.security;
 
+import io.jsonwebtoken.JwtParser;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -23,7 +27,7 @@ public class SecurityConfig {
                 .requestMatchers("/show/get/airing/*", "/show/popularShow").hasRole("USER")
                 .requestMatchers("/station/add", "/station/update/*", "/show/add").hasRole("ADMIN")
                 .anyRequest().authenticated());
-        http.formLogin(withDefaults());
+//        http.formLogin(withDefaults());
         http.httpBasic(withDefaults());
         return http.build();
     }
@@ -31,5 +35,12 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
+
+    public static final String SECRET = "678908vivjuyu7k=yuych=75646789e9876545906765789";
+    @Bean
+    public JwtParser jwtParser() {
+        return Jwts.parserBuilder()
+                .setSigningKey(Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET))).build();
     }
 }

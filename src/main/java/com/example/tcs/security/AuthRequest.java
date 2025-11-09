@@ -1,43 +1,14 @@
 package com.example.tcs.security;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.util.Collection;
-
-public class AuthRequest implements Authentication {
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
-    }
-
-    @Override
-    public Object getCredentials() {
-        return null;
-    }
-
-    @Override
-    public Object getDetails() {
-        return null;
-    }
-
-    @Override
-    public Object getPrincipal() {
-        return null;
-    }
-
-    @Override
-    public boolean isAuthenticated() {
-        return false;
-    }
-
-    @Override
-    public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
-
-    }
-
-    @Override
-    public String getName() {
-        return null;
-    }
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter @Setter
+public class AuthRequest {
+    private String username;
+    private String password;
 }
