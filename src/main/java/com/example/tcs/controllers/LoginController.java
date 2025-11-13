@@ -9,9 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,38 +21,24 @@ import java.util.Map;
 public class LoginController {
     @Autowired
     private JwtService jwtService;
-//    private AuthenticationManager authenticationManager;
-
     @Autowired
-    private UserDetailServiceImpl userDetailService;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private AuthenticationManager authenticationManager; // We were given this in template
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
         try {
-            UserDetails userDetails = userDetailService.loadUserByUsername(authRequest.getUsername());
-
-            if(!passwordEncoder.matches(authRequest.getPassword(), userDetails.getPassword())) {
-                throw new UsernameNotFoundException("Invalid Credentials");
-            }
-
-            Authentication auth = new UsernamePasswordAuthenticationToken(authRequest.getUsername(),
-                    authRequest.getPassword(), userDetails.getAuthorities());
-
-            String token = "";
-            SecurityContextHolder.getContext().setAuthentication(auth);
-            token = jwtService.generateToken(auth.getName());
-
-            if (token==null) return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-
+            Authentication toAuthenticate = new UsernamePasswordAuthenticationToken(authRequest.getUsername(),
+                    authRequest.getPassword());
+            Authentication authenticated = authenticationManager.authenticate(toAuthenticate);
+            if (authenticated==null) return new ResponseEntity<>("Invalid Credentials", HttpStatus.BAD_REQUEST);
+            String token = jwtService.generateToken(authenticated.getName());
             Map<String, String> response = new HashMap<>();
-            response.put("username", auth.getName());
+            response.put("username", authenticated.getName());
             response.put("token", token);
 
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
